@@ -1,4 +1,4 @@
-﻿ 
+ 
 
 --Assignment Day2 –SQL:  Comprehensive practice 
 
@@ -172,39 +172,92 @@ SELECT DISTINCT(p.ProductName)
 FROM Orders o 
 LEFT JOIN [Order Details] d ON o.OrderID = d.OrderID
 LEFT JOIN Products p on d.ProductID = p.ProductID
-WHERE o.OrderDate < '1996-9-16'
+WHERE o.OrderDate < '1996-9-16';
 --    List top 5 locations (Zip Code) where the products sold most. 
-
-
+SELECT TOP 5 COUNT(od.ProductID) AS 'Product Sold', o.ShipPostalCode AS 'Zip Code'
+FROM Orders o
+INNER JOIN [Order Details] od
+ON od.OrderID = o.OrderID
+WHERE o.ShipPostalCode IS NOT NULL
+GROUP BY o.ShipPostalCode
+ORDER BY 'Product Sold' DESC;
 --    List top 5 locations (Zip Code) where the products sold most in last 20 years. 
-
+SELECT TOP 5 COUNT(od.ProductID) AS 'Product Sold', o.ShipPostalCode AS 'Zip Code'
+FROM Orders o
+INNER JOIN [Order Details] od
+ON od.OrderID = o.OrderID
+WHERE o.ShipPostalCode IS NOT NULL
+AND o.OrderDate > '2001-9-16'
+GROUP BY o.ShipPostalCode
+ORDER BY 'Product Sold' DESC;
 --     List all city names and number of customers in that city.      
-
+SELECT COUNT(CustomerID ) AS 'TheCount', City 
+FROM Customers
+GROUP BY City
+ORDER BY 'TheCount' DESC;
 --    List city names which have more than 10 customers, and number of customers in that city  
-
+SELECT COUNT(CustomerID ) AS 'TheCount', City 
+FROM Customers
+WHERE City LIKE '__________%'
+GROUP BY City
+ORDER BY 'TheCount' DESC;
 --    List the names of customers who placed orders after 1/1/98 with order date. 
-
+SELECT DISTINCT(c.CompanyName)
+FROM Customers c 
+INNER JOIN Orders o
+ON o.CustomerID = c.CustomerID
+WHERE o.OrderDate > '1998-1-1';
 --    List the names of all customers with most recent order dates  
-
+SELECT c.CompanyName, c.ContactName
+FROM Customers c 
+LEFT JOIN Orders o
+ON o.CustomerID = c.CustomerID
+ORDER BY o.OrderDate;
 --    Display the names of all customers  along with the  count of products they bought  
-
+SELECT c.ContactName, COUNT(DISTINCT(od.ProductID))
+FROM Customers c 
+LEFT JOIN Orders o
+ON o.CustomerID = c.CustomerID
+LEFT JOIN [Order Details] od
+ON o.OrderID = od.OrderID
+GROUP BY c.ContactName;
 --    Display the customer ids who bought more than 100 Products with count of products. 
-
+SELECT DISTINCT(o.CustomerID)
+FROM Orders o
+LEFT JOIN [Order Details] od
+ON o.OrderID = od.OrderID
+WHERE  (SELECT COUNT(ProductID)
+FROM [Order Details]) > 100;
 --    List all of the possible ways that suppliers can ship their products. Display the results as below 
 
 --Supplier Company Name   	Shipping Company Name 
 
 SELECT sup.CompanyName as 'Supplier Company Name', sh.CompanyName as 'Shipper Company Name'
 FROM Shippers sh
-CROSS JOIN Suppliers sup
+CROSS JOIN Suppliers sup;
 -----------------------------------            ---------------------------------- 
 
 --    Display the products order each day. Show Order date and Product Name. 
-
+SELECT o.OrderDate, p.ProductName
+FROM Orders o
+LEFT JOIN [Order Details] od
+on o.OrderID = od.OrderID
+LEFT JOIN Products p 
+on od.ProductID = p.ProductID
+GROUP BY o.OrderDate, p.ProductName;
 --    Displays pairs of employees who have the same job title. 
-
+SELECT DISTINCT em1.FirstName AS 'EmPair1', em2.FirstName AS 'EmPair2'
+FROM Employees em1
+INNER JOIN Employees em2
+on em1.Title = em2.Title
+WHERE em1.EmployeeID < em2.EmployeeID;
 --    Display all the Managers who have more than 2 employees reporting to them. 
-
+SELECT EmployeeID
+FROM Employees
+WHERE (SELECT COUNT(DISTINCT em2.EmployeeID)
+FROM Employees em1
+LEFT JOIN Employees em2
+ON em2.ReportsTo = em1.EmployeeID) > 2;
 --    Display the customers and suppliers by city. The results should have the following columns 
 
 --City  
@@ -215,22 +268,10 @@ CROSS JOIN Suppliers sup
 
 --Type (Customer or Supplier) 
 
--- 28. Have two tables T1 and T2 
-
---F1.T1 , F2.T2 
-
---1 , 2 
-
---2 , 3 
-
---3 , 4 
-
- 
-
---Please write a query to inner join these two tables and write down the result of this query. 
-
--- 29. Based on above two table, Please write a query to left outer join these two tables and write down the result of this query. 
-
- 
+SELECT c.City, c.CompanyName, c.ContactName, 'Customer'
+FROM Customers c
+UNION ALL
+SELECT s.City, s.CompanyName, s.ContactName, 'Supplier'
+FROM Suppliers s;
 
 --GOOD  LUCK. 
